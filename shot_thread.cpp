@@ -71,25 +71,29 @@ void Shot_thread::run()
                 msleep(10);
                 continue;
             }
+
             myframe::mutex.lock();
-            for(QPixmap map:myframe::mypics)
+            QList<QPixmap> mypics1 =  myframe::mypics;
+            myframe::mypics.clear();
+            myframe::mutex.unlock();
+
+            for(QPixmap map:mypics1)
             {
                 QByteArray ba;
                 QBuffer bf(&ba);
-                if(!map.save(&bf,"jpg",90))
+                if(!map.save(&bf,"jpg",16))
                 {
-                    myframe::mutex.unlock();
+
                     continue;
                 }
                 if(avi==NULL)
                 {
-                    myframe::mutex.unlock();
+
                     continue;
                 }
                 AVI_write_frame(avi,ba.data(),ba.size(),1);
             }
-            myframe::mypics.clear();
-            myframe::mutex.unlock();
+            mypics1.clear();
             msleep(50);
         }
         else
